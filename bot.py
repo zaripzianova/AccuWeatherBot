@@ -69,16 +69,20 @@ async def callback_handler(callback: CallbackQuery, callback_data: TimeCallback,
     data = await state.get_data()
     cities = data.get('cities', [])
     keys = {city: city_search(city=city) for city in cities}
-    print(keys)
     weathers = {city: five_days_forecast(keys[city])[:2 * days] for city in cities}
-    print(weathers)
-
-
-
-async def run():
-
-    await dp.start_polling(bot)
+    for city, weather in weathers.items():
+        msg = f'Город: {city}\n'
+        for ind, item in enumerate(weather):
+            day = ind // 2 + 1
+            day_part = 'День' if ind % 2 == 0 else 'Ночь'
+            msg += (f'День {day} | {day_part}\n'
+                    f'Температура: {round(item.temperature, 1)}\n'
+                    f'Влажность: {round(item.humidity, 1)}\n'
+                    f'Скорость ветра: {round(item.wind_speed, 1)}\n\n')
+        await callback.message.answer(msg)
+    await state.clear()
 
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    await dp.start_polling(bot)
+

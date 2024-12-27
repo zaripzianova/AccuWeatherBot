@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+</head>
+<body>
+<h1>Добро пожаловать в приложение погоды!</h1>
+<form method="post">
+    <label for="start_point">Начальная точка маршрута:</label>
+        <input type="text" id="start_point" name="start_point" required><br><br>
+
+        <label for="end_point">Конечная точка маршрута:</label>
+        <input type="text" id="end_point" name="end_point" required><br><br>
+
+        <input type="submit" value="Получить погоду">
+</form>
+    {% if weather_data %}
+        <h2>Результаты прогноза:</h2>
+        <p><strong>Начальная точка маршрута:</strong> {{ weather_data['start_city'] }}</p>
+        <p><strong>Конечная точка маршрута:</strong> {{ weather_data['end_city'] }}</p>
+        <p><strong>Погода в {{ weather_data['start_city'] }}:</strong> {{ weather_data['start_weather'] }}</p>
+        <p><strong>Погода в {{ weather_data['end_city'] }}:</strong> {{ weather_data['end_weather'] }}</p>
+    {% endif %}
+</body>
+</html>

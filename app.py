@@ -98,7 +98,7 @@ def five_days_forecast(key):
 
 
 def city_search(city):
-    url = 'https://.accuweather.com/accuweather-locations-api/apis/get/locations/v1/cities/search'
+    url = 'https://developer.accuweather.com/accuweather-locations-api/apis/get/locations/v1/cities/search'
     params = {
         'apikey': api_key,
         'q': city

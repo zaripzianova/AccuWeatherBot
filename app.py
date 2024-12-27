@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 import requests
 
-api_key = 'ZvwP1cZxIoDNRz2hopG2xphJcElCq337'
-bot_token = ''
+api_key = ''
+bot_token = '8145511145:AAHYC6XX8vA5CAPVEjiat_WrNH17TUNAjyo'
 
 
 class WeatherForecast:
@@ -63,30 +63,28 @@ def get_current_forecast(key):
 
 
 def five_days_forecast(key):
-    url = f'http://dataservice.accuweather.com/currentconditions/v1/daily/5day/{key}'
+    url = f'http://dataservice.accuweather.com/forecasts/v1/daily/5day/{key}'
     print(key)
     params = {
         'apikey': api_key,
-        'details': 'true'
+        'details': 'true',
+        'metric': 'true'
     }
     try:
         response = requests.get(url, params=params)
         data = response.json()
-
-        if isinstance(data, list) and len(data) > 0:
-            data = data[0]
-        else:
-            print("Ошибка: данные о погоде не получены или неверный формат")
-            return None
         weather_forecasts = list()
         print(data)
-        for item in data['DailyForecasts']:
-            weather_forecast = WeatherForecast(
-                temperature=item.get('Temperature', {}).get('Metric', {}).get('Value'),
-                humidity=item.get('RelativeHumidity'),
-                wind_speed=item.get('Wind', {}).get('Speed', {}).get('Metric', {}).get('Value'),
-                wind_probability=item.get('PrecipitationSummary', {}).get('Precipitation', {}).get('Value', 0.0))
-            weather_forecasts.append(weather_forecast)
+        for day in data['DailyForecasts']:
+            for day_part in ['Day', 'Night']:
+                item = day[day_part]
+                weather_forecast = WeatherForecast(
+                    temperature=(day.get('Temperature', {}).get('Minimum', {}).get('Value') +
+                                 day.get('Temperature', {}).get('Maximum', {}).get('Value')) / 2,
+                    humidity=item.get('RelativeHumidity', {}).get('Average'),
+                    wind_speed=item.get('Wind', {}).get('Speed', {}).get('Value'),
+                    wind_probability=None)
+                weather_forecasts.append(weather_forecast)
 
         return weather_forecasts
     except requests.exceptions.RequestException as e:
@@ -98,7 +96,7 @@ def five_days_forecast(key):
 
 
 def city_search(city):
-    url = 'https://developer.accuweather.com/accuweather-locations-api/apis/get/locations/v1/cities/search'
+    url = 'https://dataservice.accuweather.com/locations/v1/cities/search'
     params = {
         'apikey': api_key,
         'q': city
@@ -106,8 +104,7 @@ def city_search(city):
     try:
         response = requests.get(url, params=params)
         data = response.json()
-        print(data)
-        return data['Key']
+        return data[0]['Key']
     except requests.exceptions.RequestException as e:
         print(f"Ошибка запроса: {e}")
         return None
@@ -161,3 +158,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
